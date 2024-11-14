@@ -1,0 +1,195 @@
+tr.inactivo {
+    color: red;
+    text-decoration: line-through;
+}
+.img_dr {
+    width: 80px;
+    height: 80px;
+}
+.no-bullets {
+    list-style-type: none;
+    padding: 0;
+    margin: 0;
+  }
+  select {
+    width: 100%;
+    padding: 5px;
+    margin: 5px 0;
+    box-sizing: border-box;
+  }
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 20px;
+  }
+  
+  h1 {
+    color: #333;
+  }
+  
+  table.dataTable {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  
+  table.dataTable th,
+  table.dataTable td {
+    padding: 10px;
+    text-align: left;
+  }
+  
+  table.dataTable thead {
+    background-color: #007bff;
+    color: white;
+  }
+  
+  table.dataTable tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+  }
+  
+  table.dataTable tbody tr:hover {
+    background-color: #ddd;
+  }
+
+  /* Estilos para la ventana emergente */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgb(0,0,0);
+  background-color: rgba(0,0,0,0.4);
+  padding-top: 60px;
+}
+.modal-content {
+  background-color: #fefefe;
+  margin: 5% auto;
+  padding: 20px;
+  border: 1px solid #888;
+  width: 80%;
+}
+.close {
+  color: #aaa;
+  float: right;
+  font-size: 28px;
+  font-weight: bold;
+}
+.close:hover,
+.close:focus {
+  color: black;
+  text-decoration: none;
+  cursor: pointer;
+}
+  
+
+/* Reset básico */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  color: #333;
+}
+
+/* Encabezado */
+header {
+  display: flex;
+  justify-content: space-between;
+  padding: 1rem;
+  background-color: #007acc;
+  color: #fff;
+}
+
+header .logo h1 {
+  font-size: 1.5rem;
+}
+
+header nav ul {
+  list-style: none;
+  display: flex;
+}
+
+header nav ul li {
+  margin-left: 1rem;
+}
+
+header nav ul li a {
+  color: #fff;
+  text-decoration: none;
+}
+
+/* Sección Principal */
+.hero {
+  background: url('path/to/hero-image.jpg') center/cover;
+  color: #fff;
+  text-align: center;
+  padding: 4rem 1rem;
+}
+
+.hero-content h2 {
+  font-size: 2.5rem;
+}
+
+.hero-content p {
+  margin-top: 1rem;
+  font-size: 1.2rem;
+}
+
+.hero-content .btn {
+  margin-top: 2rem;
+  background-color: #007acc;
+  color: #fff;
+  padding: 0.8rem 1.5rem;
+  text-decoration: none;
+}
+
+/* Servicios */
+.services {
+  padding: 2rem;
+  text-align: center;
+}
+
+.services-container {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 1rem;
+}
+
+.service-item {
+  max-width: 200px;
+}
+
+/* Equipo Médico */
+.team {
+  padding: 2rem;
+  background-color: #f9f9f9;
+  text-align: center;
+}
+
+.team-container {
+  display: flex;
+  justify-content: space-around;
+  margin-top: 1rem;
+}
+
+/* Pie de página */
+footer {
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  padding: 1rem;
+}
+
+footer .socials a {
+  color: #fff;
+  text-decoration: none;
+  margin: 0 0.5rem;
+}

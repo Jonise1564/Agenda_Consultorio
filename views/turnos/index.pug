@@ -1,0 +1,59 @@
+extends ../layout
+block contenido
+    style.
+        .center-text {
+        text-align: center;
+        }
+    script(src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous")
+    h1.center-text Turnos
+    h3= `Turnos del Dr.${turnos.nombre}, ${turnos.apellido}`
+    br
+    a(href="/turnos/create" class="btn btn-success") Crear Turno
+    if mensaje
+      .alert.alert-success
+        h1= mensaje  
+        //- solo para secretaria  if(roll = secretaria){}
+    p Estado
+    select(name="estado" class="form-select small-width" ) 
+        option(value="Libre") Libre
+        option(value="Reservado") Reservado
+        option(value="Confirmado") Confirmado
+        option(value="Cancelado") Cancelado
+        option(value="Ausente") Ausente
+        option(value="Presente") Presente
+        option(value="En Consulta") En Consulta
+        option(value="Atendido") Atendido
+        option(value="No Disponible") No Disponible  
+    table#example
+        thead 
+            tr 
+                th Id
+                th N° Agenda
+                th Fecha
+                th Hora Inicio
+                th Motivo
+                th Estado 
+                th Orden
+                th Paciente
+                th Acciones                
+        tbody 
+            each turno in turnos 
+                tr 
+                    td= turno.id
+                    td= turno.id_agenda
+                    td= turno.fecha
+                    td= `${turno.hora_inicio} hs`
+                        -if (turno.motivo)
+                            td= turno.motivo 
+                        -else 
+                            td Vacío
+                    td= turno.estado
+                    td= turno.orden
+                        -if (turno.id_paciente)
+                            td= turno.id_paciente 
+                        -else 
+                            td Vacío
+                    td
+                       a(href=`/turnos/${turnos.id}` class="btn btn-success") Reservar
+                       a(href=`/turnos/edit/${turnos.id}` class="btn btn-info") Editar
+                       

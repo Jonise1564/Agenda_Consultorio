@@ -1,0 +1,126 @@
+extends ../layout
+block contenido
+    style.
+        .center-text {
+        text-align: center;
+        }   
+        .small-width {
+        width: 25%;
+        }
+    script.
+        function toggleFieldVisibility() {
+        const fieldId = document.getElementById('id');
+        fieldId.style.display = 'none'; // Ocultar el campo
+        }
+    .conteiner  
+        h1.center-text Cartilla Médica
+        a(href="/agendas/create" class="btn btn-success") Crear Agenda
+        if mensaje
+            .alert.alert-success
+                h1= mensaje 
+        .filters
+            h3 Filtrar por:
+              //- solo para secretaria  if(roll = secretaria){}
+              p Estado
+                select(name="estado" class="form-select small-width" ) 
+                    option(value="Libre") Libre
+                    option(value="Reservado") Reservado
+                    option(value="Confirmado") Confirmado
+                    option(value="Cancelado") Cancelado
+                    option(value="Ausente") Ausente
+                    option(value="Presente") Presente
+                    option(value="En Consulta") En Consulta
+                    option(value="Atendido") Atendido
+                    option(value="No Disponible") No Disponible
+              //- visto por todos los roles 
+              p Especialidad 
+                select(name="especialidades" class="form-select small-width" )
+                    option(value="") Todas    
+                        each especialidad in especialidades || []
+                            option(value=especialidad.nombre)= especialidad.nombre
+           
+    table#example   
+        thead 
+            tr 
+                th Id
+                th Comienza
+                th Termina
+                th Dia
+                th Horario de Inicio
+                th Horario de Fin
+                th Duracion
+                th Sobreturnos 
+                th Profesional
+                th Especialidad
+                th Consultorio
+                th Clasificación
+                th Acciones                
+        tbody 
+            each agenda in agendas 
+                tr 
+                    td= agenda.id
+                    td= agenda.fecha_creacion
+                    td= agenda.fecha_fin
+                    td= agenda.dias
+                    td= `${agenda.hora_inicio} hs`
+                    td= `${agenda.hora_fin} hs`
+                    td= `${agenda.duracion_turnos} minutos`
+                    td= agenda.limite_sobreturnos
+                    td= `${agenda.apellido} ${agenda.nombre}`
+                    td= agenda.especialidad
+                    td= agenda.sucursal
+                    td= agenda.clasificacion
+                    td
+                        a(href=`/turnos/${agenda.id}` class="btn btn-success") Ver Turnos 
+                        a(href=`/agendas/edit/${agenda.id}` class="btn btn-info") Editar
+                        button(onclick=`confirmDelete(${agenda.id})` class="btn btn-danger") Eliminar
+    script. 
+        function confirmDelete(id) { 
+            Swal.fire({ 
+                title: '¿Estás seguro?',
+                text: "¡No podrás revertir esto!",
+                icon: 'warning', 
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6', 
+                cancelButtonColor: '#d33', 
+                confirmButtonText: 'Sí, eliminarlo!' 
+            }).then((result) => { 
+                if (result.isConfirmed) {
+                    // Lógica para eliminar la agenda 
+                    deleteAgenda(id); 
+                }
+            }); 
+        }
+
+        function deleteAgenda(id) { 
+            fetch(`/agendas/${id}`, { 
+                method: 'DELETE' 
+            }).then(response => { 
+                if (response.ok) { 
+                    Swal.fire( 
+                        'Eliminado!', 
+                        'La agenda ha sido eliminada.', 
+                        'success' 
+                    ).then(() => {
+                        //refresca la pagina despues de eliminar
+                        location.reload()
+                    })
+                    // Actualiza la tabla o realiza cualquier otra acción necesaria 
+                } else { 
+                    Swal.fire( 
+                        'Error!',
+                        'Hubo un problema al eliminar la agenda.', 
+                        'error'
+                    ); 
+                }
+            })
+            .catch(error => { 
+                Swal.fire( 
+                    'Error!', 
+                    'Hubo un problema al eliminar la agenda.', 
+                    'error' 
+                ); 
+            }); 
+        }
+                    
+                    

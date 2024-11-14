@@ -1,0 +1,42 @@
+extends ../layout
+
+block contenido
+    style.
+        body {
+            background-color: #f0f8ff;
+        }
+        .center-text {
+        text-align: center;
+        font-weight: bold;
+        }       
+    //- Sección Principal
+    section.hero#inicio
+      .hero-content
+        h1.center-text Bienvenido a nuestro Consultorio Médico
+        //-p Atención integral de calidad para cuidar de tu salud y bienestar.
+        a(href="/agendas" class="btn btn-success") Reserva tu cita
+
+    //- //- Sección de Servicios
+    //- section#servicios.services
+    //-   h3 Nuestros Servicios
+    //-   .services-container
+    //-     .service-item
+    //-       h4 Consulta General
+    //-       p Atención personalizada para todas tus necesidades médicas.
+    //-     .service-item
+    //-       h4 Especialidades Médicas
+    //-       p Amplio equipo de especialistas en diversas áreas.
+    //-     .service-item
+    //-       h4 Laboratorio Clínico
+    //-       p Pruebas de laboratorio precisas y confiables.
+
+    //- Sección del Equipo Médico
+    //- section#equipo.team
+    //-   h3 Conoce a nuestro Equipo Médico
+    //-   .team-container
+    //-     .team-member
+    //-       h4 Dr. Juan Pérez
+    //-       p Especialista en Cardiología
+    //-     .team-member
+    //-       h4 Dra. Ana López
+    //-       p Especialista en Pediatría

@@ -1,0 +1,14 @@
+
+//- extends ../layout
+
+//- block contenido
+//-     .container
+//-         h1 Modificar Especialidad
+//-         if errorMessage
+//-             .alert.alert-danger= errorMessage
+//-         form(action=`/especialidades/update/${especialidad.id}` method="POST" id="editar-form" class="needs-validation" novalidate)
+//-             .mb-3
+//-                 label(for="nombre" class="form-label") Nombre:
+//-                 input(type="text" name="nombre" id="nombre" class="form-control" required)
+//-             button(type="submit" class="btn btn-primary") Actualizar Especialidad
+

@@ -1,0 +1,24 @@
+extends ../layout
+
+block contenido
+    .container
+        h1 Crear Obra Social
+
+        if errorMessage
+            .alert.alert-danger= errorMessage
+
+        form(action="/obrasSociales/store" method="post")
+            .form-group
+                label(for="nombre") Nombre
+                input.form-control(type="text" name="nombre" id="nombre" required)
+
+            .form-group
+                label(for="descripcion") Descripción
+                textarea.form-control(name="descripcion" id="descripcion" rows="3" required)
+
+            .form-group
+                label(for="direccion") Dirección
+                input.form-control(type="text" name="direccion" id="direccion" required)
+
+            button.btn.btn-primary(type="submit") Guardar
+            a.btn.btn-secondary(href="/obrasSociales") Cancelar

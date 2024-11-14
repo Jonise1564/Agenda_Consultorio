@@ -1,0 +1,100 @@
+extends ../layout
+
+
+block contenido
+  a(href="/agendas" class="btn btn-outline-dark") Volver
+  link(rel="stylesheet" href="/css/style.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous")
+  style.
+    .center-text {
+      text-align: center;
+    }
+    /*
+    .half-width {
+      width: 50%;
+    }
+    .small-width {
+      width: 25%;
+    }*/
+    .status-active {
+      color: green;
+    }
+    .status-inactive {
+      color: red;
+    }
+    .center-buttons {
+      display: flex;
+      justify-content: center;
+    }
+  script.
+    function toggleFieldVisibility() {
+      const fieldId = document.getElementById('id');
+      fieldId.style.display = 'none'; // Ocultar el campo
+    }
+  h1.center-text Editar Agenda
+
+  form(action=`/agendas/update/${agenda.id}` method="POST" id="editar-form" class="needs-validation" novalidate)
+    
+    div(class="mb-3")
+      label(for="id" class="form-label") 
+      input(type="number" name="id" id='id' class="form-control" value=agenda.id readonly)
+   
+    div(class="mb-3")
+      label(for="fecha_creacion" class="form-label") Fecha de Creacion:
+      input(type="date" name="fecha_creacion" class="form-control" value=agenda.fecha_creacion.toISOString().split('T')[0] required)
+      div(class="invalid-feedback") La fecha de inicio es obligatoria.
+    
+    div(class="mb-3")
+      label(for="fecha_fin" class="form-label") Fecha de Finalización:
+      input(type="date" name="fecha_fin" class="form-control" value=agenda.fecha_fin.toISOString().split('T')[0] required)
+      div(class="invalid-feedback") La fecha finalización es obligatoria.
+    
+    div(class="mb-3")
+      label(for="hora_inicio" class="form-label") Hora de Inicio:
+      input(type="time" name="hora_inicio" class="form-control" value=agenda.hora_inicio required)
+      div(class="invalid-feedback") La hora de inicio es obligatoria.
+   
+    div(class="mb-3")
+      label(for="hora_fin" class="form-label") Hora de Finalización:
+      input(type="time" name="hora_fin" class="form-control" value=agenda.hora_fin required)
+      div(class="invalid-feedback") La hora de fin es obligatoria.
+
+    div(class="mb-3")
+      label(for="limite_sobreturnos" class="form-label") Limite de Sobreturnos:
+      input(type="number" name="limite_sobreturnos" class="form-control" value=agenda.limite_sobreturnos required)
+      div(class="invalid-feedback") Limite de sobreturnos es obligatorio.
+
+    div(class="mb-3")
+      label(for="duracion_turnos" class="form-label") Duracion de Turnos (minutos):
+      input(type="number" name="duracion_turnos" class="form-control" value=agenda.duracion_turnos required)
+      div(class="invalid-feedback") Duracion de turnos es obligatorio.
+
+    div(class="mb-3")
+      label(for="matricula" class="form-label") N° Matricula del Profesional: #{agenda.matricula}
+      select(name="matricula" class="form-select" required)
+        option(value="") Asigne una nueva:
+          each matricula in matriculas || []
+            option(value=matricula.matricula)= `${matricula.matricula}, ${matricula.nombre} ${matricula.apellido}, ${matricula.nombreMat}`
+
+    div(class="mb-3")
+      label(for="sucursal" class="form-label") Sucursal: #{agenda.sucursal}
+      select(name="sucursal" class="form-select" required)
+          option(value="") Asigne una nueva:
+          option(value="1") Clinica Argentina, San Luis
+          option(value="2") Clinica España, Juana Koslay
+    
+    div(class="mb-3")
+      label(for="clasificacion" class="form-label") Clasificación: #{agenda.clasificacion}
+      select(name="clasificacion" class="form-select" required)
+          option(value="") Asigne una nueva:
+          option(value="1") Normal
+          option(value="2") Especial
+          option(value="3") VIP
+
+    button(type="submit" class="btn btn-success center-buttons") Guardar Cambios
+
+  script(src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous")
+  script(src="/js/medicos.js")
+  script.
+    // Llamar a la función para ocultar el campo cuando la página se carga
+    document.addEventListener('DOMContentLoaded', toggleFieldVisibility);
+

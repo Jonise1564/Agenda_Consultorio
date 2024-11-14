@@ -1,0 +1,23 @@
+//- extends ../layout
+
+//- block contenido
+//-     .container
+//-         h1 Agregar nueva Especialidad
+//-         form(action="/especialidades/store" method="POST")
+//-             .mb-3
+//-                 label(for="nombre" class="form-label") Nombre:
+//-                 input(type="text" name="nombre" id="nombre" class="form-control" required)
+//-             button(type="submit" class="btn btn-primary") Agregar Especialidad
+
+extends ../layout
+
+block contenido
+    .container
+        h1 Agregar nueva Especialidad
+        if errorMessage
+            .alert.alert-danger= errorMessage
+        form(action="/especialidades/store" method="POST")
+            .mb-3
+                label(for="nombre" class="form-label") Nombre:
+                input(type="text" name="nombre" id="nombre" class="form-control" required)
+            button(type="submit" class="btn btn-primary") Agregar Especialidad

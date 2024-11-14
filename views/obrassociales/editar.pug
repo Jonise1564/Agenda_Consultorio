@@ -1,0 +1,19 @@
+extends ../layout
+
+block contenido
+    .container
+        h1 Modificar Obra Social
+        if errorMessage
+            .alert.alert-danger= errorMessage
+        form(action=`/obrasSociales/update/${obraSocial.id}` method="POST" id="editar-form" class="needs-validation" novalidate)
+            .mb-3
+                label(for="nombre" class="form-label") Nombre:
+                input(type="text" name="nombre" id="nombre" class="form-control" value=obraSocial.nombre required)
+            .mb-3
+                label(for="descripcion" class="form-label") Descripción:
+                textarea(name="descripcion" id="descripcion" class="form-control" rows="3" required)= obraSocial.descripcion
+            .mb-3
+                label(for="direccion" class="form-label") Dirección:
+                input(type="text" name="direccion" id="direccion" class="form-control" value=obraSocial.direccion required)
+            button(type="submit" class="btn btn-primary") Actualizar Obra Social
+            a.btn.btn-secondary(href="/obrasSociales") Cancelar
