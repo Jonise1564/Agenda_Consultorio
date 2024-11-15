@@ -1,30 +1,32 @@
-
 const express = require('express');
-const TurnosRouter = express.Router()
-const TurnosControllers = require('../controllers/turnosControllers');
+const router = express.Router();
+const TurnosController = require('../controllers/turnosControllers');
+const Turno = require('../models/turnosModels');
 
-// Index turnos desde agenda por el idagenda
-TurnosRouter.get('/:id', TurnosControllers.get);
+// Ruta para obtener todos los turnos
+router.get('/:id', TurnosController.get);
+
+// Ruta para reservar un turno
+router.post('/reservar/:id', TurnosController.reservar)
+// Ruta para bloquear un turno
+router.post('/bloquear/:id', TurnosController.bloquear)
 /*
-// Vista crear (GET para mostrar el formulario)
-TurnosRouter.get('/create', TurnosControllers.getCreateForm);
+router.post('/bloquear/:id', async (req, res) => {
+    try {
+        const { id } = req.params;
 
-// redirigir a la vista crear
-TurnosRouter.get('/create', TurnosControllers.create);
+        // Lógica para bloquear el turno y actualizar el estado a "No disponible"
+        const turnoActualizado = await Turno.update(id, { estado: 'No disponible' });
 
-// Guardar nuevo médico (POST para la ruta raíz, si es necesario)
-TurnosRouter.post('/', TurnosControllers.store);
+        if (turnoActualizado) {
+            res.status(200).json({ message: 'Turno bloqueado exitosamente' });
+        } else {
+            res.status(400).json({ message: 'Error al bloquear el turno' });
+        }
+    } catch (error) {
+        console.error('Error al bloquear el turno:', error);
+        res.status(500).json({ message: 'Error interno del servidor' });
+    }
+});*/
 
-// Vista editar
-TurnosRouter.get('/edit/:dni', TurnosControllers.edit);
-
-// Actualizar médico
-TurnosRouter.post('/update/:dni', TurnosControllers.update);
-
-// Eliminar médico
-TurnosRouter.post('/activar/:dni', TurnosControllers.activar)
-//inactivar
-TurnosRouter.post('/inactivar/:dni', TurnosControllers.inactivar);
-
-*/
-module.exports = TurnosRouter;
+module.exports = router;

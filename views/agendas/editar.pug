@@ -1,6 +1,5 @@
 extends ../layout
 
-
 block contenido
   a(href="/agendas" class="btn btn-outline-dark") Volver
   link(rel="stylesheet" href="/css/style.css" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous")
@@ -8,13 +7,6 @@ block contenido
     .center-text {
       text-align: center;
     }
-    /*
-    .half-width {
-      width: 50%;
-    }
-    .small-width {
-      width: 25%;
-    }*/
     .status-active {
       color: green;
     }
@@ -48,15 +40,23 @@ block contenido
       input(type="date" name="fecha_fin" class="form-control" value=agenda.fecha_fin.toISOString().split('T')[0] required)
       div(class="invalid-feedback") La fecha finalización es obligatoria.
     
-    div(class="mb-3")
-      label(for="hora_inicio" class="form-label") Hora de Inicio:
-      input(type="time" name="hora_inicio" class="form-control" value=agenda.hora_inicio required)
-      div(class="invalid-feedback") La hora de inicio es obligatoria.
-   
-    div(class="mb-3")
-      label(for="hora_fin" class="form-label") Hora de Finalización:
-      input(type="time" name="hora_fin" class="form-control" value=agenda.hora_fin required)
-      div(class="invalid-feedback") La hora de fin es obligatoria.
+    h3 Días y Horarios
+    .mb-3#dias-horarios-container
+      each dia in agenda.diasDisponibles
+        div(class="dia-horario")
+          label(for="dia" class="form-label") Día:
+          select(name="dia[]" class="form-select dia-select" required)
+            each diaOption in dias || []
+              option(value=diaOption.id selected=(diaOption.id == dia.dia))= diaOption.dia
+          .mb-3
+            label(for="hora_inicio" class="form-label") Inicia:
+            input(type="time" name="hora_inicio[]" class="form-control" value=dia.hora_inicio required)
+          .mb-3
+            label(for="hora_fin" class="form-label") Finaliza:
+            input(type="time" name="hora_fin[]" class="form-control" value=dia.hora_fin required)
+    .btn-group
+      button#agregar-dia-btn(type="button" class="btn btn-secondary" onclick="agregarDiaHorario()") Agregar Otro Día  
+      button#cancelar-dia-btn(type="button" class="btn btn-danger" onclick="cancelarDiaHorario()" style="display: none;") Cancelar
 
     div(class="mb-3")
       label(for="limite_sobreturnos" class="form-label") Limite de Sobreturnos:
@@ -71,21 +71,21 @@ block contenido
     div(class="mb-3")
       label(for="matricula" class="form-label") N° Matricula del Profesional: #{agenda.matricula}
       select(name="matricula" class="form-select" required)
-        option(value="") Asigne una nueva:
+        option(value=`${agenda.matricula}`)= agenda.matricula
           each matricula in matriculas || []
             option(value=matricula.matricula)= `${matricula.matricula}, ${matricula.nombre} ${matricula.apellido}, ${matricula.nombreMat}`
 
     div(class="mb-3")
       label(for="sucursal" class="form-label") Sucursal: #{agenda.sucursal}
       select(name="sucursal" class="form-select" required)
-          option(value="") Asigne una nueva:
+          option(value=`${agenda.id_sucursal}`)= agenda.sucursal
           option(value="1") Clinica Argentina, San Luis
           option(value="2") Clinica España, Juana Koslay
     
     div(class="mb-3")
       label(for="clasificacion" class="form-label") Clasificación: #{agenda.clasificacion}
       select(name="clasificacion" class="form-select" required)
-          option(value="") Asigne una nueva:
+          option(value=`${agenda.id_clasificacion}`)= agenda.clasificacion
           option(value="1") Normal
           option(value="2") Especial
           option(value="3") VIP
@@ -98,3 +98,134 @@ block contenido
     // Llamar a la función para ocultar el campo cuando la página se carga
     document.addEventListener('DOMContentLoaded', toggleFieldVisibility);
 
+    const diasSeleccionados = new Set();
+    const combinacionesSeleccionadas = new Set();
+
+    function agregarDiaHorario() {
+        const container = document.getElementById('dias-horarios-container');
+        const diaSelects = document.querySelectorAll('.dia-select');
+        const nuevoDiaSelect = diaSelects[0].cloneNode(true);
+        nuevoDiaSelect.value = "";
+
+        const nuevoDiaHorario = document.createElement('div');
+        nuevoDiaHorario.classList.add('dia-horario');
+        nuevoDiaHorario.innerHTML = `
+            <label for="dia" class="form-label">Día:</label>
+            ${nuevoDiaSelect.outerHTML}
+            <div class="mb-3">
+                <label for="hora_inicio" class="form-label">Hora Inicio:</label>
+                <input type="time" name="hora_inicio[]" class="form-control" required>
+            </div>
+            <div class="mb-3">
+                <label for="hora_fin" class="form-label">Hora Fin:</label>
+                <input type="time" name="hora_fin[]" class="form-control" required>
+            </div>
+        `;
+        container.appendChild(nuevoDiaHorario);
+
+        nuevoDiaSelect.addEventListener('change', function() {
+            diasSeleccionados.add(this.value);
+        });
+
+        // Añadir eventos de cambio a los nuevos campos de hora
+        nuevoDiaHorario.querySelectorAll('input[type="time"]').forEach(input => {
+            input.addEventListener('change', verificarCampos);
+        });
+
+        // Mostrar el botón de cancelar
+        document.getElementById('cancelar-dia-btn').style.display = 'inline-block';
+
+        // Verificar si se han seleccionado todos los días, horas de inicio y fin
+        verificarCampos();
+    }
+
+    function cancelarDiaHorario() {
+        const container = document.getElementById('dias-horarios-container');
+        const diaHorarios = container.querySelectorAll('.dia-horario');
+        if (diaHorarios.length > 1) {
+            container.removeChild(diaHorarios[diaHorarios.length - 1]);
+        }
+        document.getElementById('cancelar-dia-btn').style.display = 'none';
+        verificarCampos();
+    }
+
+    function verificarCampos() {
+        const diaSelects = document.querySelectorAll('.dia-select');
+        const horaInicios = document.querySelectorAll('input[name="hora_inicio[]"]');
+        const horaFins = document.querySelectorAll('input[name="hora_fin[]"]');
+        let camposCompletos = true;
+
+        diaSelects.forEach((select, index) => {
+            const dia = select.value;
+            const horaInicio = horaInicios[index].value;
+            const horaFin = horaFins[index].value;
+
+            if (dia === "" || horaInicio === "" || horaFin === "") {
+                camposCompletos = false;
+            } else {
+                const combinacion = `${dia}-${horaInicio}-${horaFin}`;
+                combinacionesSeleccionadas.add(combinacion);
+            }
+        });
+
+        document.getElementById('agregar-dia-btn').disabled = !camposCompletos;
+    }
+
+    function validarFormulario() {
+        const fechaCreacion = document.getElementById('fecha_creacion').value;
+        const fechaFin = document.getElementById('fecha_fin').value;
+        const duracionTurnos = document.getElementById('duracion_turnos').value;
+        const fechaActual = new Date().toISOString().split('T')[0];
+
+        if (fechaCreacion === fechaFin) {
+            Swal.fire({
+                title: 'Error',
+                text: 'La fecha de creación y la fecha de fin no pueden ser iguales.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+            return false;
+        }
+
+        if (new Date(fechaFin) < new Date(fechaCreacion)) {
+            Swal.fire({
+                title: 'Error',
+                text: 'La fecha de fin no puede ser menor a la fecha de creación.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+            return false;
+        }
+
+        if (new Date(fechaCreacion) < new Date(fechaActual)) {
+            Swal.fire({
+                title: 'Error',
+                text: 'La fecha de creación no puede ser menor a la fecha actual.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+            return false;
+        }
+
+        if (duracionTurnos <= 10) {
+            Swal.fire({
+                title: 'Error',
+                text: 'La duración de los turnos debe ser mayor a 10 minutos.',
+                icon: 'error',
+                confirmButtonText: 'OK'
+            });
+            return false;
+        }
+
+        return true;
+    }
+
+    document.querySelectorAll('.dia-select, input[name="hora_inicio[]"], input[name="hora_fin[]"]').forEach(element => {
+        element.addEventListener('change', verificarCampos);
+    });
+
+    document.querySelectorAll('.dia-select').forEach(select => {
+        select.addEventListener('change', function() {
+            diasSeleccionados.add(this.value);
+        });
+    });

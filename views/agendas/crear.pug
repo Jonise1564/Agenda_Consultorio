@@ -7,7 +7,7 @@ block contenido
       }
   .container.mt-5
     h2.center-text Crear Nueva Agenda
-    form(action="/agendas" method="POST")
+    form(action="/agendas" method="POST" onsubmit="return validarFormulario()")
       h3 Fechas
       .mb-3  
         label(for="fecha_creacion" class="form-label") Comienza:
@@ -15,13 +15,24 @@ block contenido
       .mb-3  
         label(for="fecha_fin" class="form-label") Finaliza:
         input#fecha_fin.form-control(type="date" name="fecha_fin" required)
-      h3 Horas
-      .mb-3
-        label(for="hora_inicio" class="form-label") Inicio:
-        input#hora_inicio.form-control(type="time" name="hora_inicio" required)
-      .mb-3
-        label(for="hora_fin" class="form-label") Final:
-        input#hora_fin.form-control(type="time" name="hora_fin" required)
+      br
+      h3 Días y Horarios
+      .mb-3#dias-horarios-container
+        div(class="dia-horario")
+          label(for="dia" class="form-label") Día:
+          select(name="dia[]" class="form-select dia-select" required)
+            option(value="") Seleccione un día
+            each dia in dias || []
+              option(value=dia.id)= dia.dia
+          .mb-3
+            label(for="hora_inicio" class="form-label") Inicia:
+            input(type="time" name="hora_inicio[]" class="form-control" required)
+          .mb-3
+            label(for="hora_fin" class="form-label") Finaliza:
+            input(type="time" name="hora_fin[]" class="form-control" required)
+      .btn-group
+        button#agregar-dia-btn(type="button" class="btn btn-secondary" onclick="agregarDiaHorario()" disabled) Agregar Otro Día  
+        button#cancelar-dia-btn(type="button" class="btn btn-danger" onclick="cancelarDiaHorario()" style="display: none;") Cancelar
       br
       .mb-3
         label(for="duracion_turnos" class="form-label") Duración de Turnos (minutos):
@@ -56,33 +67,152 @@ block contenido
           option(value="2") Especial
           option(value="3") VIP
 
-      button(type="submit" class="btn btn-primary") Crear Agenda
-
-    //- script(src="https://code.jquery.com/jquery-3.6.0.min.js")
-    //- script.
-    //-   $('#medicosSelect').on('change', function() {
-    //-     const medicoId = $(this).val();
-    //-     if (medicoId) {
-    //-       $.ajax({
-    //-         url: `/especialidades/${medicoId}`,
-    //-         method: 'GET',
-    //-         success: function(data) {
-    //-           const especialidadesSelect = $('#especialidadesSelect');
-    //-           especialidadesSelect.empty().append('<option value="">Selecciona una especialidad</option>');
-    //-           data.forEach(especialidad => {
-    //-             especialidadesSelect.append(`<option value="${especialidad.id}">${especialidad.nombre}</option>`);
-    //-           });
-    //-           especialidadesSelect.show();
-    //-         },
-    //-         error: function(error) {
-    //-           console.error('Error:', error);
-    //-         }
-    //-       });
-    //-     } else {
-    //-       $('#especialidadesSelect').hide();
-    //-     }
-    //-   });
+      br
+      button(type="submit" class="btn btn-primary mt-3") Crear Agenda
 
     script(src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" 
     integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous")
-    //- script(src="/js/agendas.js")
+    script(src="https://cdn.jsdelivr.net/npm/sweetalert2@11")
+    script.
+      const diasSeleccionados = new Set();
+      const combinacionesSeleccionadas = new Set();
+
+      function agregarDiaHorario() {
+          const container = document.getElementById('dias-horarios-container');
+          const diaSelects = document.querySelectorAll('.dia-select');
+          const nuevoDiaSelect = diaSelects[0].cloneNode(true);
+          nuevoDiaSelect.value = "";
+
+          const nuevoDiaHorario = document.createElement('div');
+          nuevoDiaHorario.classList.add('dia-horario');
+          nuevoDiaHorario.innerHTML = `
+              <label for="dia" class="form-label">Día:</label>
+              ${nuevoDiaSelect.outerHTML}
+              <div class="mb-3">
+                  <label for="hora_inicio" class="form-label">Hora Inicio:</label>
+                  <input type="time" name="hora_inicio[]" class="form-control" required>
+              </div>
+              <div class="mb-3">
+                  <label for="hora_fin" class="form-label">Hora Fin:</label>
+                  <input type="time" name="hora_fin[]" class="form-control" required>
+              </div>
+          `;
+          container.appendChild(nuevoDiaHorario);
+
+          nuevoDiaSelect.addEventListener('change', function() {
+              diasSeleccionados.add(this.value);
+          });
+
+          // Añadir eventos de cambio a los nuevos campos de hora
+          nuevoDiaHorario.querySelectorAll('input[type="time"]').forEach(input => {
+              input.addEventListener('change', verificarCampos);
+          });
+
+          // Mostrar el botón de cancelar
+          document.getElementById('cancelar-dia-btn').style.display = 'inline-block';
+
+          // Verificar si se han seleccionado todos los días, horas de inicio y fin
+          verificarCampos();
+      }
+
+      function cancelarDiaHorario() {
+          const container = document.getElementById('dias-horarios-container');
+          const diaHorarios = container.querySelectorAll('.dia-horario');
+          if (diaHorarios.length > 1) {
+              container.removeChild(diaHorarios[diaHorarios.length - 1]);
+          }
+          document.getElementById('cancelar-dia-btn').style.display = 'none';
+          verificarCampos();
+      }
+
+      function verificarCampos() {
+          const diaSelects = document.querySelectorAll('.dia-select');
+          const horaInicios = document.querySelectorAll('input[name="hora_inicio[]"]');
+          const horaFins = document.querySelectorAll('input[name="hora_fin[]"]');
+          let camposCompletos = true;
+          
+
+          diaSelects.forEach((select, index) => {
+              const dia = select.value;
+              const horaInicio = horaInicios[index].value;
+              const horaFin = horaFins[index].value;
+              
+              if (dia === "" || horaInicio === "" || horaFin === "") {
+                 camposCompletos = false; 
+                 } else {
+                   const combinacion = `${dia}-${horaInicio}-${horaFin}`;
+                   /* if (combinacionesSeleccionadas.has(combinacion)) { 
+                    Swal.fire({ title: 'Error', 
+                    text: 'Esta combinación de día y horario ya ha sido seleccionada. Por favor, elija otra combinación.', 
+                    icon: 'error', 
+                    confirmButtonText: 'OK'
+                    }); 
+                    camposCompletos = false; 
+                    } else { */
+                      combinacionesSeleccionadas.add(combinacion); 
+                      ///} 
+                      } 
+                      }); 
+                      document.getElementById('agregar-dia-btn').disabled = !camposCompletos; 
+          }
+                      
+         
+
+      function validarFormulario() {
+          const fechaCreacion = document.getElementById('fecha_creacion').value;
+          const fechaFin = document.getElementById('fecha_fin').value;
+          const duracionTurnos = document.getElementById('duracion_turnos').value;
+          const fechaActual = new Date().toISOString().split('T')[0];
+
+          if (fechaCreacion === fechaFin) {
+              Swal.fire({
+                  title: 'Error',
+                  text: 'La fecha de creación y la fecha de fin no pueden ser iguales.',
+                  icon: 'error',
+                  confirmButtonText: 'OK'
+              });
+              return false;
+          }
+
+          if (new Date(fechaFin) < new Date(fechaCreacion)) {
+              Swal.fire({
+                  title: 'Error',
+                  text: 'La fecha de fin no puede ser menor a la fecha de creación.',
+                  icon: 'error',
+                  confirmButtonText: 'OK'
+              });
+              return false;
+          }
+
+          if (new Date(fechaCreacion) < new Date(fechaActual)) {
+              Swal.fire({
+                  title: 'Error',
+                  text: 'La fecha de creación no puede ser menor a la fecha actual.',
+                  icon: 'error',
+                  confirmButtonText: 'OK'
+              });
+              return false;
+          }
+
+          if (duracionTurnos <= 10) {
+              Swal.fire({
+                  title: 'Error',
+                  text: 'La duración de los turnos debe ser mayor a 10 minutos.',
+                  icon: 'error',
+                  confirmButtonText: 'OK'
+              });
+              return false;
+          }
+
+          return true;
+      }
+
+      document.querySelectorAll('.dia-select, input[name="hora_inicio[]"], input[name="hora_fin[]"]').forEach(element => {
+          element.addEventListener('change', verificarCampos);
+      });
+
+      document.querySelectorAll('.dia-select').forEach(select => {
+          select.addEventListener('change', function() {
+              diasSeleccionados.add(this.value);
+          });
+      });
